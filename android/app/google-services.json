@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1046497809957",
+    "project_id": "foody-bc822",
+    "storage_bucket": "foody-bc822.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1046497809957:android:c814d2fa7c9f8585a591cc",
+        "android_client_info": {
+          "package_name": "com.radius.foody"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1046497809957-4vs3rrk7d1gi8qrneuqrt5qunsqr4qvp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDee4kDr_y61krD22Ck3FkbBwmaBw1ZH60"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1046497809957-4vs3rrk7d1gi8qrneuqrt5qunsqr4qvp.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
