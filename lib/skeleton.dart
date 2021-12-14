@@ -18,7 +18,7 @@ class SkeletonApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: "Foody_Main_Activity",
+      title: "Foody_Skeleton_Activity",
       theme: FlexThemeData.light(scheme: FlexScheme.mango),
       darkTheme: FlexThemeData.dark(scheme: FlexScheme.mango),
       themeMode: ThemeMode.light,
@@ -64,7 +64,7 @@ class _SkeletonState extends State<Skeleton> {
           children: <Widget>[
             HomePage(),
             const SearchPage(),
-            ProfilePage(),
+            const ProfilePage(),
             Container(
               color: Colors.blue,
             ),

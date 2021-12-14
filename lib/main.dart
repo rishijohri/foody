@@ -2,11 +2,32 @@ import 'dart:io';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
-import 'error_page.dart';
+import 'end_page.dart';
 import 'skeleton.dart';
+import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'sign.dart';
 void main() {
-  runApp(const ConnectionApp());
+  runApp(const MainApp());
+}
+
+class MainApp extends StatefulWidget {
+  const MainApp({Key? key}) : super(key: key);
+
+  @override
+  _MainAppState createState() => _MainAppState();
+}
+
+class _MainAppState extends State<MainApp> {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: "Foody_Main_Activity",
+      theme: FlexThemeData.light(scheme: FlexScheme.mango),
+      darkTheme: FlexThemeData.dark(scheme: FlexScheme.mango),
+      themeMode: ThemeMode.light,
+      home: const ConnectionApp(),
+    );
+  }
 }
 
 class ConnectionApp extends StatefulWidget {
@@ -27,18 +48,18 @@ class _ConnectionAppState extends State<ConnectionApp> {
       builder: (context, snapshot) {
         // Check for errors
         if (snapshot.hasError) {
-          return const ErrorApp();
+          return const ErrorPage();
         }
         // Once complete, show your application
         if (snapshot.connectionState == ConnectionState.done) {
-          sleep(const Duration(seconds: 2));
+          sleep(const Duration(seconds: 3));
           return SkeletonApp();
         }
-        return ErrorApp(
-          child: Text("Unknown Error", style: Theme.of(context).textTheme.headline2),
-        );
+        return const IntroPage();
         // Otherwise, show something whilst waiting for initialization to complete
       },
     );
   }
 }
+
+

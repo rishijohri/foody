@@ -41,6 +41,7 @@ dependencies:
   bottom_navy_bar: ^6.0.0
   horizontal_card_pager: ^1.1.1
   banner_carousel: ^1.2.1
+  flutter_launcher_icons: ^0.9.2
 
 dev_dependencies:
   flutter_test:
@@ -65,6 +66,7 @@ flutter:
   uses-material-design: true
   assets:
     - assets/
+    - assets/images/minimal_mango.png
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg

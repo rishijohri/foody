@@ -1,7 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'skeleton.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+
 class Sign extends StatefulWidget {
   const Sign({Key? key}) : super(key: key);
 
@@ -10,7 +12,6 @@ class Sign extends StatefulWidget {
 }
 
 class _SignState extends State<Sign> {
-
   FirebaseAuth auth = FirebaseAuth.instance;
   String? prtext = "Sign Up or Sign In";
   FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -21,18 +22,18 @@ class _SignState extends State<Sign> {
     firestore = FirebaseFirestore.instance;
     auth = FirebaseAuth.instance;
     curr = auth.currentUser;
-    if (curr!=null) {
-
+    if (curr != null) {
     } else {
       print("no user");
       print("user");
     }
-    if (curr?.email !=null) {
-      prtext = curr!.email;
+    if (curr?.email != null) {
+      prtext = curr!.displayName;
     } else {
       prtext = "Sign Up or Sign In";
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,8 +46,19 @@ class _SignState extends State<Sign> {
                 padding: const EdgeInsets.all(8.0),
                 child: Center(
                   child: Text(prtext!,
-                      style: Theme.of(context).textTheme.headline4),
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.primaryVariant,
+                          fontWeight: FontWeight.bold,
+                          fontSize: Theme.of(context)
+                              .textTheme
+                              .headline4!
+                              .fontSize),
+                  ),
                 ),
+              ),
+              Image(
+                image:const AssetImage("assets/images/minimal_mango.png"),
+                height: MediaQuery.of(context).size.height*0.3,
               ),
               Center(
                 child: Row(
@@ -62,9 +74,19 @@ class _SignState extends State<Sign> {
                                 builder: (context) => const Register(),
                               ));
                         },
-                        child: Text("Register",
-                            style: Theme.of(context).textTheme.headline5),
-                        color: Theme.of(context).colorScheme.secondary,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            "Register",
+                            style: TextStyle(
+                                color: Theme.of(context).colorScheme.onPrimary,
+                                fontSize: Theme.of(context)
+                                    .textTheme
+                                    .headline5!
+                                    .fontSize),
+                          ),
+                        ),
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
                     Padding(
@@ -74,12 +96,22 @@ class _SignState extends State<Sign> {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => SignIN(),
+                                builder: (context) => const SignIN(),
                               ));
                         },
-                        child: Text("Sign In",
-                            style: Theme.of(context).textTheme.headline5),
-                        color: Theme.of(context).colorScheme.secondary,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            "Sign In",
+                            style: TextStyle(
+                                color: Theme.of(context).colorScheme.onPrimary,
+                                fontSize: Theme.of(context)
+                                    .textTheme
+                                    .headline5!
+                                    .fontSize),
+                          ),
+                        ),
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
                   ],
@@ -92,7 +124,6 @@ class _SignState extends State<Sign> {
     );
   }
 }
-
 
 class Register extends StatefulWidget {
   const Register({Key? key}) : super(key: key);
@@ -115,6 +146,51 @@ class _RegisterState extends State<Register> {
     passwordObscure = true;
     auth = FirebaseAuth.instance;
     firestore = FirebaseFirestore.instance;
+  }
+
+  Future<void> registration() async {
+    bool ahead = true;
+    String tmpError = "Unable to Sign In";
+    try {
+      // ignore: unused_local_variable
+      UserCredential userCredential = await auth.createUserWithEmailAndPassword(
+        email: email.text,
+        password: pass.text,
+      );
+    } on FirebaseAuthException catch (e) {
+      tmpError = e.code;
+      ahead = false;
+    } catch (e) {
+      ahead = false;
+    } finally {
+      if (ahead) {
+        setState(() {
+          errorText = "Success !!";
+        });
+        CollectionReference userData = firestore.collection("UserDatas");
+        auth.currentUser?.updateDisplayName(display.text);
+        DocumentReference userRef = await userData.add({
+          "name": display.text,
+          "email": email.text,
+        });
+        await userRef.update(
+            {"auth_id": auth.currentUser == null ? 0 : auth.currentUser!.uid});
+        await firestore.runTransaction((transaction) async {
+          transaction.set(userRef.collection("History").doc(), {
+            "date": DateTime.now(),
+            "amount": 0,
+            "items": [],
+          });
+        });
+        Navigator.of(context).pop();
+        Navigator.of(context)
+            .push(MaterialPageRoute(builder: (context) => const Skeleton()));
+      } else {
+        setState(() {
+          errorText = tmpError;
+        });
+      }
+    }
   }
 
   @override
@@ -152,7 +228,9 @@ class _RegisterState extends State<Register> {
                   suffixIcon: IconButton(
                     icon: Icon(
                       // Based on passwordVisible state choose the icon
-                      !passwordObscure ? Icons.visibility : Icons.visibility_off,
+                      !passwordObscure
+                          ? Icons.visibility
+                          : Icons.visibility_off,
                       color: Theme.of(context).primaryColorDark,
                     ),
                     onPressed: () {
@@ -168,49 +246,10 @@ class _RegisterState extends State<Register> {
               ),
             ),
             MaterialButton(
-              onPressed: () async {
-              bool ahead = true;
-              String tmpError = "Unable to Sign In";
-              try {
-                UserCredential userCredential = await auth.createUserWithEmailAndPassword(
-                    email: email.text,
-                    password: pass.text,
-                );
-              } on FirebaseAuthException catch (e) {
-                tmpError = e.code;
-                ahead = false;
-              } catch (e) {
-                ahead = false;
-              } finally {
-                if (ahead) {
-                  setState(() {
-                    errorText = "Success !!";
-                  });
-                  CollectionReference userdatas = firestore.collection("UserDatas") ;
-                  auth.currentUser?.updateDisplayName(display.text);
-                  DocumentReference userRef = await userdatas.add({
-                    "name": display.text,
-                    "email": email.text,
-                  });
-                  await userRef.update({"auth_id": auth.currentUser==null? 0: auth.currentUser!.uid});
-                  await firestore.runTransaction((transaction) async {
-                    transaction.set(userRef.collection("History").doc(), {
-                      "date": DateTime.now(),
-                      "amount": 0,
-                      "items": [],
-                    });
-                  });
-                  Navigator.of(context).pop();
-                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => const Skeleton()));
-                } else {
-                  setState(() {
-                    errorText = tmpError;
-                  });
-                }
-              }
-            },
+              onPressed: registration,
               color: Theme.of(context).colorScheme.secondary,
-            child: Text("Submit", style: Theme.of(context).textTheme.headline5),
+              child:
+                  Text("Submit", style: Theme.of(context).textTheme.headline5),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
@@ -245,6 +284,7 @@ class _SignINState extends State<SignIN> {
     super.initState();
     passwordObscure = true;
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -270,7 +310,9 @@ class _SignINState extends State<SignIN> {
                   suffixIcon: IconButton(
                     icon: Icon(
                       // Based on passwordVisible state choose the icon
-                      !passwordObscure ? Icons.visibility : Icons.visibility_off,
+                      !passwordObscure
+                          ? Icons.visibility
+                          : Icons.visibility_off,
                       color: Theme.of(context).primaryColorDark,
                     ),
                     onPressed: () {
@@ -285,45 +327,48 @@ class _SignINState extends State<SignIN> {
                 ),
               ),
             ),
-            MaterialButton(onPressed: () async {
-              bool ahead = true;
-              String tmperr = "Unable to sign in, try again later";
-              try {
-                UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-                    email: email.text,
-                    password: pass.text
-                );
-              } on FirebaseAuthException catch (e) {
-                ahead = false;
-                tmperr = e.code;
-                if (e.code == 'user-not-found') {
-                  print('No user found for that email.');
-                } else if (e.code == 'wrong-password') {
-                  print('Wrong password provided for that user.');
+            MaterialButton(
+              onPressed: () async {
+                bool ahead = true;
+                String tmperr = "Unable to sign in, try again later";
+                try {
+                  UserCredential userCredential = await FirebaseAuth.instance
+                      .signInWithEmailAndPassword(
+                          email: email.text, password: pass.text);
+                } on FirebaseAuthException catch (e) {
+                  ahead = false;
+                  tmperr = e.code;
+                  if (e.code == 'user-not-found') {
+                    print('No user found for that email.');
+                  } else if (e.code == 'wrong-password') {
+                    print('Wrong password provided for that user.');
+                  }
+                } catch (e) {
+                  print(e);
+                } finally {
+                  if (ahead) {
+                    setState(() {
+                      errorText = "Success !!!";
+                    });
+                    Navigator.of(context).pop();
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => const Skeleton()));
+                  } else {
+                    setState(() {
+                      errorText = tmperr;
+                    });
+                  }
                 }
-              } catch (e) {
-                print(e);
-              } finally {
-                if (ahead) {
-                  setState(() {
-                    errorText = "Success !!!";
-                  });
-                  Navigator.of(context).pop();
-                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => const Skeleton()));
-                } else {
-                  setState(() {
-                    errorText = tmperr;
-                  });
-                }
-              }
-            },
+              },
               color: Theme.of(context).colorScheme.secondary,
-              child: Text("Submit", style: Theme.of(context).textTheme.headline5),
+              child:
+                  Text("Submit", style: Theme.of(context).textTheme.headline5),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text(
-                errorText, style: Theme.of(context).textTheme.headline5,
+                errorText,
+                style: Theme.of(context).textTheme.headline5,
               ),
             )
           ],
@@ -332,4 +377,3 @@ class _SignINState extends State<SignIN> {
     );
   }
 }
-

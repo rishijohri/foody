@@ -114,7 +114,6 @@ class _HomePageState extends State<HomePage> {
                       text: "Cake",
                       noSelectedBgColor: Theme.of(context).colorScheme.secondary,
                       selectedBgColor: Theme.of(context).colorScheme.primary,
-                      selectedIconTextColor: Theme.of(context).colorScheme.primaryVariant,
                       noSelectedIconTextColor:
                           Theme.of(context).colorScheme.onSecondary),
                   IconTitleCardItem(
